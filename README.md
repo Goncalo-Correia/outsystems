@@ -15,10 +15,6 @@ ODC **external libraries** — C#/.NET class libraries that expose server action
 
 Build, package, and publish instructions for these libraries live in `CLAUDE.md` and in the `odc-extension` / `odc-extension-zip` skills.
 
-### Front-end assets
-
-- [`CompareObjects/tradovate-ny-atr-levels/`](odc-outsystems-extensions/CompareObjects/tradovate-ny-atr-levels/README.md) — **NY Session ATR Levels**, a Tradovate custom indicator (`nySessionAtrLevels.js`). A standalone browser/JS asset, unrelated to the C# library it currently nests under; see its own README for install and parameters.
-
 ## Deploy
 
 This repo is released with the `deploy` skill (`/deploy`): it refreshes documentation (`CLAUDE.md` via `/init`, and this `README.md`), then commits, pushes the working branch, merges into `main`, and pushes `main`. Publishing an ODC extension itself (upload → publish → release the revision) is a manual step performed in the ODC Portal.

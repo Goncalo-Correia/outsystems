@@ -4,14 +4,13 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What this repo is
 
-A collection of OutSystems assets. Today it holds **ODC (OutSystems Developer Cloud) external libraries** — C#/.NET class libraries that expose server actions and structures to ODC apps via `OutSystems.ExternalLibraries.SDK` — plus standalone front-end assets (e.g. a Tradovate custom indicator). It is expected to grow to include other kinds of assets (JavaScript, docs, etc.), so treat it as a multi-asset monorepo, not a single application.
+A collection of OutSystems assets. Today it holds **ODC (OutSystems Developer Cloud) external libraries** — C#/.NET class libraries that expose server actions and structures to ODC apps via `OutSystems.ExternalLibraries.SDK`. It is expected to grow to include other kinds of assets (JavaScript, docs, etc.), so treat it as a multi-asset monorepo, not a single application.
 
 ## Layout
 
 - `odc-outsystems-extensions/` — one folder per ODC external library, each an independent `.csproj`:
   - `CompareObjects/` — compares two JSON objects property-by-property, returns a typed `List<PropertyDifference>`. Migrated from the O11 `CompareObjs` extension.
   - `Shapefile/` — converts a GeoJSON `FeatureCollection` (WGS84) into a zipped ESRI shapefile reprojected to ETRS89 / PT-TM06 (EPSG:3763).
-  - `CompareObjects/tradovate-ny-atr-levels/` — a standalone Tradovate custom indicator (`nySessionAtrLevels.js`); front-end JS, unrelated to the C# library it currently nests under.
 - `.claude/skills/deploy/` — the `deploy` skill (git-based release flow; see below).
 
 Each extension carries its own `RELEASE_NOTES.md` (the authoritative per-library documentation) and a committed upload `<Project>.zip`.
@@ -49,4 +48,4 @@ Deployment is git-based and driven by the `deploy` skill (`/deploy`): refresh `C
 ## Notes
 
 - Windows host: the filesystem is case-insensitive (`README.md` == `readme.md`).
-- There is currently no root `.gitignore`, so `bin/`, `obj/`, and `.vs/` build artifacts are tracked in git. Avoid relying on them; a new extension should not assume they belong under version control.
+- Build artifacts (`bin/`, `obj/`, `.vs/`) are git-ignored via the root `.gitignore`. The committed upload `<Project>.zip` in each extension folder is intentionally tracked (it is the release artifact) and is not ignored.
