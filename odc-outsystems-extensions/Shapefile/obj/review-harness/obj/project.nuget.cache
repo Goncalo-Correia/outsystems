@@ -1,0 +1,14 @@
+{
+  "version": 2,
+  "dgSpecHash": "F1rTZqzKd+U=",
+  "success": true,
+  "projectFilePath": "C:\\Users\\thirt\\repos\\odc-outsystems-extensions\\Shapefile\\obj\\review-harness\\review-harness.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\thirt\\.nuget\\packages\\nettopologysuite\\2.0.0\\nettopologysuite.2.0.0.nupkg.sha512",
+    "C:\\Users\\thirt\\.nuget\\packages\\nettopologysuite.features\\2.0.0\\nettopologysuite.features.2.0.0.nupkg.sha512",
+    "C:\\Users\\thirt\\.nuget\\packages\\nettopologysuite.io.esri.shapefile\\1.2.0\\nettopologysuite.io.esri.shapefile.1.2.0.nupkg.sha512",
+    "C:\\Users\\thirt\\.nuget\\packages\\newtonsoft.json\\13.0.4\\newtonsoft.json.13.0.4.nupkg.sha512",
+    "C:\\Users\\thirt\\.nuget\\packages\\projnet\\2.1.0\\projnet.2.1.0.nupkg.sha512"
+  ],
+  "logs": []
+}

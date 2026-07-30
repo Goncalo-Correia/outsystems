@@ -1,0 +1,30 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>disable</Nullable>
+    <!-- Copy NuGet dependencies (NetTopologySuite, ProjNET, …) into the build
+         output so they can be packaged into the ODC External Logic upload ZIP. -->
+    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Modern managed ESRI shapefile reader/writer (.shp/.shx/.dbf/.prj). -->
+    <PackageReference Include="NetTopologySuite.IO.Esri.Shapefile" Version="1.2.0" />
+    <!-- Pure-managed coordinate reprojection (WGS84 -> ETRS89 / PT-TM06). -->
+    <PackageReference Include="ProjNET" Version="2.1.0" />
+    <!-- JSON parsing, consistent with the other extensions in this repo. -->
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
+    <!-- ILogger abstractions for production diagnostics. ODC injects the logger
+         at runtime; only the abstractions (ILogger, NullLogger) are needed. -->
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="9.0.0" />
+    <!-- The SDK is compile-time only. ODC provides it at runtime, so it must not
+         be copied to output or included in the upload ZIP. -->
+    <PackageReference Include="OutSystems.ExternalLibraries.SDK" Version="1.5.0">
+      <PrivateAssets>all</PrivateAssets>
+      <ExcludeAssets>runtime</ExcludeAssets>
+    </PackageReference>
+  </ItemGroup>
+
+</Project>

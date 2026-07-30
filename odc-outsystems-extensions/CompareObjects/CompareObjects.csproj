@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>disable</Nullable>
+    <!-- Copy NuGet dependencies (e.g. Newtonsoft.Json) into the build output so
+         they can be packaged into the ODC External Logic upload ZIP. -->
+    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
+    <!-- The SDK is compile-time only. ODC provides it at runtime, so it must not
+         be copied to output or included in the upload ZIP. -->
+    <PackageReference Include="OutSystems.ExternalLibraries.SDK" Version="1.5.0">
+      <PrivateAssets>all</PrivateAssets>
+      <ExcludeAssets>runtime</ExcludeAssets>
+    </PackageReference>
+  </ItemGroup>
+
+</Project>
