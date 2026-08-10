@@ -31,7 +31,7 @@ results go back out through `$parameters.<Name>` for a plain transform, or throu
 
 | Asset | What it does |
 | --- | --- |
-| [`csv/`](javascript-libraries/csv/README.md) | RFC 4180 conversion in both directions, each reporting bad input through an `ErrorMessage` output. `csvToJson.js` turns a CSV string into a JSON array of objects for **JSON Deserialize** (delimiter sniffing, quoted fields, ragged rows); `jsonToCsv.js` writes a JSON array back out as CSV for download. |
+| [`csv/`](javascript-libraries/csv/README.md) | RFC 4180 conversion in both directions, each reporting *malformed* input through an `ErrorMessage` output while treating an empty file or a header-only template as an empty result. `csvToJson.js` turns a CSV string into a JSON array of objects for **JSON Deserialize** (delimiter sniffing, quoted fields, ragged rows); `jsonToCsv.js` writes a JSON array back out as CSV for download. |
 | [`esri-map/`](javascript-libraries/esri-map/README.md) | Embeds the ICNF Esri map in an `<iframe>` and bridges it to the app over `postMessage`: sends map parameters, receives drawing results, and converts between Esri GeoJSON and the app's stored `MapGeoJson` shape. Two variants — `esri-map.js` (draw/edit/upload, posts results back) and `esri-map-readonly.js` (display-only). |
 | [`input-scripts/`](javascript-libraries/input-scripts/README.md) | Scripts that constrain what a user can type into an Input widget. `input-phonenumber.js` restricts an input to an optional leading `+` followed by digits, salvaging the valid part of pasted text. |
 

@@ -201,7 +201,12 @@
 
     // Leading blank lines before the header are noise.
     while (rows.length > 0 && isBlankRow(rows[0])) rows.shift();
-    if (rows.length === 0) fail("The CSV has no header row.");
+
+    // Nothing but blank lines, or a header with no data rows: both are empty,
+    // not broken. A template — the header the user is asked to fill in — is
+    // exactly a file with no data rows, so it has to convert to an empty list
+    // rather than an error.
+    if (rows.length === 0) return [];
 
     var names = buildHeader(rows[0]);
     var records = [];
@@ -209,10 +214,6 @@
     for (var r = 1; r < rows.length; r++) {
       if (isBlankRow(rows[r])) continue;
       records.push(toRecord(rows[r], names));
-    }
-
-    if (records.length === 0) {
-      fail("The CSV has a header row but no data rows.");
     }
 
     return records;
@@ -223,9 +224,15 @@
   // Both outputs are always written: ErrorMessage empty means JSON is safe to
   // deserialize, ErrorMessage filled means JSON is "[]" and the text is meant
   // for the user. A malformed file must not throw out of the client action.
+  //
+  // Empty is not an error. An empty file, and a template holding only its header
+  // row, both convert to "[]" with no message — whether an empty list is
+  // acceptable is the caller's decision, not this script's.
   try {
     if (csv === null || csv === undefined || String(csv).trim() === "") {
-      fail("The CSV is empty.");
+      $parameters.JSON = "[]";
+      $parameters.ErrorMessage = "";
+      return;
     }
 
     $parameters.JSON = JSON.stringify(run(csv));

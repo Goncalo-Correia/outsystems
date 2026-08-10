@@ -12,6 +12,11 @@ Both share the same error contract: two outputs, where `ErrorMessage` empty mean
 usable and `ErrorMessage` filled means the result is empty and the message is for the user. Neither
 throws.
 
+**Empty is not an error.** An empty file, and a template holding only its header row, convert to an
+empty result with no message. Whether "no records" is acceptable is the caller's decision — a
+template import expects it, a data import probably does not — so the app tests the list, not
+`ErrorMessage`. `ErrorMessage` is reserved for input that is genuinely *broken*.
+
 ## `csvToJson.js` — CSV text → JSON text
 
 Parses a CSV string into a JSON **array of objects**, one object per data row, keyed by the column
@@ -28,7 +33,7 @@ NumeroDeclaracao;NIF;Quantidade          [{"NumeroDeclaracao":"25PT000123456789A
 | Parameter | Direction | Type | Description |
 | --- | --- | --- | --- |
 | `CSV` | Input | Text | The raw CSV. |
-| `JSON` | Output | Text | The JSON array, or `[]` if the parse failed. |
+| `JSON` | Output | Text | The JSON array — `[]` if the file held no data rows, or if the parse failed. |
 | `ErrorMessage` | Output | Text | Empty on success; otherwise a message to show the user. |
 
 No configuration: the delimiter is detected, the first row is always the header, and every value
@@ -38,18 +43,17 @@ comes out as a JSON string.
 
 The contract is a single check:
 
-> **`ErrorMessage` empty** → `JSON` holds at least one record and is safe to deserialize.
+> **`ErrorMessage` empty** → `JSON` is safe to deserialize (possibly `[]`).
 > **`ErrorMessage` filled** → `JSON` is `[]`; show the message.
 
 The action never throws, so it needs no exception handler around it — test `ErrorMessage` instead.
 There is no partial success: the script never returns a half-parsed list next to an error, because a
 JSON array that silently lost rows is worse than a refusal.
 
+Only two things are errors:
+
 | Condition | `ErrorMessage` |
 | --- | --- |
-| `CSV` empty, blank, or `NullTextIdentifier` | `The CSV is empty.` |
-| Nothing but blank/separator-only lines | `The CSV has no header row.` |
-| Header present, zero data rows | `The CSV has a header row but no data rows.` |
 | A `"` is opened and never closed | `Unterminated quoted value starting on line <N>. …` |
 | A bug in the script itself | `Could not read the CSV: <detail>` (plus a `console.error` with the stack) |
 
@@ -58,8 +62,16 @@ the user sees in Excel or a text editor. This case is worth failing on rather th
 stray `"` swallows every line after it, which would otherwise look like a clean parse that quietly
 dropped most of the file.
 
-Note what is **not** an error — these are normal and parse without a message: ragged rows, duplicate
-or blank column names, blank lines anywhere, a single-column file, and a trailing newline.
+Everything else parses without a message, returning `[]` where there is no data:
+
+- an **empty file**, blank text, or `NullTextIdentifier`
+- a **template** — a header row with no data rows (with or without a trailing newline)
+- nothing but blank or separator-only lines (`;;;`)
+- ragged rows, duplicate or blank column names, blank lines anywhere, a single-column file
+
+To reject an empty import, test the deserialized list in the app (`ListIsEmpty`) rather than
+`ErrorMessage` — that keeps "the file was empty" and "the file was broken" as separate outcomes with
+separate messages, and lets a template screen accept the first one.
 
 ### Parsing rules (RFC 4180)
 
@@ -92,6 +104,8 @@ Call it from any client action or screen event — it does not touch the DOM, so
 2. **CsvToJson** → `JSON` + `ErrorMessage`.
 3. **If** `ErrorMessage <> ""` → show it (Feedback Message / validation) and stop.
 4. **JSON Deserialize** with a `List` of your structure as the data type → typed records.
+5. **If** the list is empty → the file was a template or had no rows; decide per screen whether that
+   is acceptable.
 
 Keep the structure's attribute names identical to the CSV column names; that mapping is what the
 output is built to satisfy.
@@ -112,7 +126,7 @@ ODC's **JSON Serialize** over a list.
 | Parameter | Direction | Type | Description |
 | --- | --- | --- | --- |
 | `JSON` | Input | Text | A JSON array of objects. A single object is accepted too, and becomes a one-row CSV. |
-| `CSV` | Output | Text | The CSV text, or `""` if conversion failed. |
+| `CSV` | Output | Text | The CSV text — `""` if there was nothing to write, or if conversion failed. |
 | `ErrorMessage` | Output | Text | Empty on success; otherwise a message to show the user. |
 
 ### Writing rules (RFC 4180)
@@ -139,19 +153,19 @@ works either way, because `csvToJson.js` sniffs the delimiter rather than assumi
 ### Error handling
 
 Same contract as `csvToJson.js`: `ErrorMessage` empty → `CSV` is complete; `ErrorMessage` filled →
-`CSV` is `""`.
+`CSV` is `""`. Only malformed or wrongly-shaped input is an error:
 
 | Condition | `ErrorMessage` |
 | --- | --- |
-| `JSON` empty or blank | `The JSON is empty.` |
 | Not parseable | `The JSON is not valid: <detail>` |
-| Parses to a scalar or `null` | `The JSON must be an array of objects, but it is a number.` |
+| Parses to a scalar | `The JSON must be an array of objects, but it is a number.` |
 | An item is not an object | `Every item in the JSON must be an object, but item 2 is null.` |
-| `[]` | `The JSON has no records.` |
-| Records with no properties (`[{}]`) | `The JSON records have no properties.` |
 | A bug in the script itself | `Could not write the CSV: <detail>` (plus a `console.error`) |
 
 Item numbers in messages are 1-based, matching how a user counts records.
+
+These are **not** errors — each yields `CSV = ""` with no message: empty or blank input, the literal
+`null`, `[]`, and records with no properties (`[{}]`).
 
 ### Wiring
 
@@ -162,9 +176,28 @@ The usual export chain:
 3. **If** `ErrorMessage <> ""` → show it and stop.
 4. **TextToBinary** → `Download` (set the filename's extension to `.csv`).
 
+### Generating a template
+
+`[]` carries no property names, so there is nothing to build a header from and the output is `""` —
+an empty array cannot produce a header-only template. Two ways to get one:
+
+- **Serialize a one-record list** whose record has default (empty) values. That yields the header
+  plus one blank row — usually what a fill-in template should look like anyway:
+  `[{"NumeroDeclaracao":"","NIF":"","Quantidade":""}]` → `NumeroDeclaracao,NIF,Quantidade` + `,,`.
+- **Keep the header as text** in the app (a Site Property or a static string) and download it
+  directly, skipping this script — a fixed template has nothing to convert.
+
+Uploading such a template back through `csvToJson.js` gives `[]` with no error, which is the case
+this pair is built to survive.
+
 ### Round-tripping with `csvToJson.js`
 
-`CSV → JSON → CSV → JSON` returns the same JSON, with one documented exception: a **ragged** source
-file becomes rectangular, because CSV cannot express "this row has no 4th field" as distinct from
-"the 4th field is empty". Converting again after that changes nothing — the pair reaches a fixed
-point. Values are text on both sides, so no numeric or date reformatting happens in either direction.
+`CSV → JSON → CSV → JSON` returns the same JSON, with two documented exceptions:
+
+- a **ragged** source file becomes rectangular, because CSV cannot express "this row has no 4th
+  field" as distinct from "the 4th field is empty";
+- a **template** (header, no data rows) becomes `[]` and then `""`, since the header names do not
+  survive an empty array — see *Generating a template* above.
+
+Converting again after either changes nothing — the pair reaches a fixed point. Values are text on
+both sides, so no numeric or date reformatting happens in either direction.

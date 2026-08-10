@@ -111,11 +111,9 @@
   }
 
   // Accepts an array of objects, and — as a convenience — a single object, which
-  // becomes a one-row CSV.
+  // becomes a one-row CSV. An empty array (or a null) is empty, not broken.
   function toRecords(data) {
-    if (data === null || data === undefined) {
-      fail("The JSON must be an array of objects, but it is null.");
-    }
+    if (data === null || data === undefined) return [];
 
     if (!Array.isArray(data)) {
       if (typeof data !== "object") {
@@ -123,8 +121,6 @@
       }
       return [data];
     }
-
-    if (data.length === 0) fail("The JSON has no records.");
 
     for (var i = 0; i < data.length; i++) {
       if (data[i] === null || typeof data[i] !== "object" || Array.isArray(data[i])) {
@@ -140,7 +136,10 @@
     var records = toRecords(parse(String(text)));
     var columns = collectColumns(records);
 
-    if (columns.length === 0) fail("The JSON records have no properties.");
+    // No records, or records with no properties, means there is nothing to name
+    // the columns after — the only honest CSV is an empty one. See the README on
+    // generating a header-only template, which needs the names from elsewhere.
+    if (columns.length === 0) return "";
 
     var lines = [buildRow(columns)];
 
@@ -160,9 +159,14 @@
   // Both outputs are always written: ErrorMessage empty means CSV is complete,
   // ErrorMessage filled means CSV is "" and the text is meant for the user.
   // Bad input must not throw out of the client action.
+  //
+  // Empty is not an error. Empty input and an empty array both produce an empty
+  // CSV with no message — whether that is acceptable is the caller's decision.
   try {
     if (json === null || json === undefined || String(json).trim() === "") {
-      fail("The JSON is empty.");
+      $parameters.CSV = "";
+      $parameters.ErrorMessage = "";
+      return;
     }
 
     $parameters.CSV = run(json);
