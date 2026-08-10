@@ -24,12 +24,14 @@ Build, package, and publish instructions for these libraries live in `CLAUDE.md`
 ## `javascript-libraries/`
 
 Client-side scripts for ODC screens and blocks. Each file is the **body of a single client action**
-pasted into ODC Studio — no build step, no bundler, no npm. Inputs come in as `$parameters.<Name>`
-and results go out through `$actions.<Name>(...)`. Each subfolder has its own `README.md` with the
-parameters, wiring, and behaviour.
+pasted into ODC Studio — no build step, no bundler, no npm. Inputs come in as `$parameters.<Name>`;
+results go back out through `$parameters.<Name>` for a plain transform, or through
+`$actions.<Name>(...)` when the result arrives asynchronously. Each subfolder has its own
+`README.md` with the parameters, wiring, and behaviour.
 
 | Asset | What it does |
 | --- | --- |
+| [`csv/`](javascript-libraries/csv/README.md) | RFC 4180 conversion in both directions, each reporting bad input through an `ErrorMessage` output. `csvToJson.js` turns a CSV string into a JSON array of objects for **JSON Deserialize** (delimiter sniffing, quoted fields, ragged rows); `jsonToCsv.js` writes a JSON array back out as CSV for download. |
 | [`esri-map/`](javascript-libraries/esri-map/README.md) | Embeds the ICNF Esri map in an `<iframe>` and bridges it to the app over `postMessage`: sends map parameters, receives drawing results, and converts between Esri GeoJSON and the app's stored `MapGeoJson` shape. Two variants — `esri-map.js` (draw/edit/upload, posts results back) and `esri-map-readonly.js` (display-only). |
 | [`input-scripts/`](javascript-libraries/input-scripts/README.md) | Scripts that constrain what a user can type into an Input widget. `input-phonenumber.js` restricts an input to an optional leading `+` followed by digits, salvaging the valid part of pasted text. |
 

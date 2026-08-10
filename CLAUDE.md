@@ -26,6 +26,9 @@ and a section in the root `README.md`.
   - `Shapefile/` — converts a GeoJSON `FeatureCollection` (WGS84) into a zipped ESRI shapefile
     reprojected to ETRS89 / PT-TM06 (EPSG:3763).
 - `javascript-libraries/` — one folder per client-side asset, each with its own `README.md`:
+  - `csv/` — `csvToJson.js` and `jsonToCsv.js`, the two halves of RFC 4180 conversion as client
+    actions (CSV↔JSON strings). Pure transforms, no DOM, no listeners; sized to sit either side of
+    ODC's `JSON Deserialize` / `JSON Serialize`.
   - `esri-map/` — `esri-map.js` (editable) and `esri-map-readonly.js` (display-only), the two
     client actions behind the `Esri_Maps` web blocks.
   - `input-scripts/` — `input-phonenumber.js`, an input-filtering client action.
@@ -78,7 +81,9 @@ The public surface of each library is a single decorated interface (`ICompareObj
 These files are **not modules and are never imported**. Each file is the entire body of one ODC
 client action, pasted into ODC Studio. That constrains how they are written:
 
-- Inputs arrive as `$parameters.<Name>`; outputs / callbacks go out through `$actions.<Name>(...)`.
+- Inputs arrive as `$parameters.<Name>`. A synchronous result is written back to
+  `$parameters.<Name>` (the action's output parameter, as in `csvToJson`); an asynchronous one goes
+  out through a callback, `$actions.<Name>(...)` (as in `esri-map`).
   There are no imports, exports, or `require` — an added dependency has to be inlined.
 - Written as ES5-style IIFEs (`var`, `function`) so they run unmodified inside ODC's runtime.
 - Scripts must be **idempotent across re-renders**: ODC re-runs client actions when a block
