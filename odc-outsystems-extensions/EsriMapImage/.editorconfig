@@ -1,0 +1,4 @@
+# Execution contexts are reused between ODC server-action calls, so a missed
+# Dispose accumulates across invocations. Make the leak analyzer a build warning.
+[*.cs]
+dotnet_diagnostic.CA2000.severity = warning

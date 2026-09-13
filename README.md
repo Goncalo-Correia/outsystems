@@ -17,6 +17,7 @@ apps via `OutSystems.ExternalLibraries.SDK`. Each subfolder is an independent pr
 | Extension | What it does |
 | --- | --- |
 | [`CompareObjects/`](odc-outsystems-extensions/CompareObjects/RELEASE_NOTES.md) | Compares two JSON objects property-by-property and returns a typed `List` of `PropertyDifference` (`Key`, `ValueOld`, `ValueNew`, `IsEqual`). Migrated from the OutSystems 11 `CompareObjs` extension. |
+| [`EsriMapImage/`](odc-outsystems-extensions/EsriMapImage/RELEASE_NOTES.md) | Turns the `MapGeoJson` stored by the `Esri_Maps` blocks into the `Web_Map_as_JSON` payload the ArcGIS *Export Web Map* service needs — ring collection, a padded aspect-corrected extent, and the Esri envelope. Exposed in ODC as `MapImage`. |
 | [`Shapefile/`](odc-outsystems-extensions/Shapefile/RELEASE_NOTES.md) | Converts a GeoJSON `FeatureCollection` (WGS84) into a zipped ESRI shapefile (`.shp`/`.shx`/`.dbf`/`.prj`), reprojected to ETRS89 / PT-TM06 (EPSG:3763). |
 
 Build, package, and publish instructions for these libraries live in `CLAUDE.md`.

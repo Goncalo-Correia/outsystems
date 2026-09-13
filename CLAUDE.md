@@ -23,6 +23,9 @@ and a section in the root `README.md`.
   (there is **no root solution**):
   - `CompareObjects/` — compares two JSON objects property-by-property, returns a typed
     `List<PropertyDifference>`. Migrated from the O11 `CompareObjs` extension.
+  - `EsriMapImage/` — converts a stored `MapGeoJson` `FeatureCollection` into the Esri
+    `Web_Map_as_JSON` payload for the ArcGIS *Export Web Map* service. Pure transformation: no
+    network, no rendering. Exposed to ODC as `MapImage`.
   - `Shapefile/` — converts a GeoJSON `FeatureCollection` (WGS84) into a zipped ESRI shapefile
     reprojected to ETRS89 / PT-TM06 (EPSG:3763).
 - `javascript-libraries/` — one folder per client-side asset, each with its own `README.md`:
@@ -45,9 +48,12 @@ Each extension is built and packaged independently from its own project folder.
 
 ```bash
 dotnet build -c Release           # verification gate
-dotnet test -c Release            # runs unit tests if the project has any
 dotnet publish -c Release --no-self-contained
 ```
+
+No extension carries a test project. If one is ever added it belongs in a **sibling**
+`<Project>.Tests/` folder, run from *there* — a test project inside the extension folder would be
+swept into the extension's own `**/*.cs` compile and shipped in the assembly.
 
 The **upload ZIP is the contents of the publish output** (`bin/Release/net10.0/publish/`), zipped so
 the main assembly is at the ZIP root — named `<Project>.zip` and placed in the project folder,
