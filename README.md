@@ -36,6 +36,16 @@ results go back out through `$parameters.<Name>` for a plain transform, or throu
 | [`esri-map/`](javascript-libraries/esri-map/README.md) | Embeds the ICNF Esri map in an `<iframe>` and bridges it to the app over `postMessage`: sends map parameters, receives drawing results, and converts between Esri GeoJSON and the app's stored `MapGeoJson` shape. Two variants — `esri-map.js` (draw/edit/upload, posts results back) and `esri-map-readonly.js` (display-only). |
 | [`input-scripts/`](javascript-libraries/input-scripts/README.md) | Scripts that constrain what a user can type into an Input widget. `input-phonenumber.js` restricts an input to an optional leading `+` followed by digits, salvaging the valid part of pasted text. |
 
+## `skills/`
+
+Shareable Claude Code skills for OutSystems work. These are copies kept in version control; to use
+one, copy its folder into `~/.claude/skills/` (personal) or a project's `.claude/skills/`. The skills
+that drive *this* repo's own workflows live in `.claude/skills/` instead.
+
+| Skill | What it does |
+| --- | --- |
+| [`outsystems-mcp-code-review/`](skills/outsystems-mcp-code-review/SKILL.md) | Review gate for changes made to an OutSystems module through the Service Studio MCP. Lists every changed element (with its Service Studio path, details, and the acceptance criteria it covers) as an inline Yes/No form with a reason box for each "No". On submit it publishes when everything is Yes and there are no validation errors; otherwise it fixes the rejected items and shows the full list again with the fixed rows in yellow. Keeps a per-round log in `~/.claude/outsystems-reviews/`. |
+
 ## Reference data
 
 Datasets kept as markdown tables, ready to load into ODC entities.

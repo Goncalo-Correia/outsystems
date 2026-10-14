@@ -13,6 +13,7 @@ independent *category* of asset with its own build (or no build at all) and its 
   actions; no build step, no bundler, no npm.
 - **Reference data** (`countries.md` and future siblings) — markdown datasets meant to be loaded
   into ODC entities.
+- **Claude Code skills** (`skills/`) — shareable skills for OutSystems work.
 
 Expect new categories over time. When adding one, give it a top-level folder, its own README/notes,
 and a section in the root `README.md`.
@@ -37,7 +38,13 @@ and a section in the root `README.md`.
   - `input-scripts/` — `input-phonenumber.js`, an input-filtering client action.
 - `countries.md` — the 249 ISO 3166-1 countries as a markdown table ready to load into a `Country`
   entity (includes the `CountryTypeId` GUIDs for the intracommunity/extracommunity split).
-- `.claude/skills/deploy/` — the `deploy` skill (git-based release flow; see below).
+- `skills/` — shareable Claude Code skills for OutSystems work, kept here for versioning (not
+  loaded by this repo; install by copying a folder into `~/.claude/skills/`):
+  - `outsystems-mcp-code-review/` — per-element Yes/No review gate for Service Studio MCP changes
+    that publishes only after full approval and zero validation errors. The personal copy in
+    `~/.claude/skills/` is the one Claude actually loads; keep the two in sync when editing.
+- `.claude/skills/` — skills used to work on this repo: `deploy` (git-based release flow; see
+  below), `odc-extension` and `odc-extension-zip`.
 
 Each extension carries its own `RELEASE_NOTES.md` and each JavaScript folder its own `README.md` —
 those are the **authoritative per-asset documentation**. Keep behavioral detail there, not here.
