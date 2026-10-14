@@ -1,8 +1,8 @@
 # OutSystems Assets
 
 A monorepo of OutSystems-related assets: ODC (OutSystems Developer Cloud) external libraries,
-client-side JavaScript for ODC screens, and reference datasets — with room for more kinds of content
-over time.
+client-side JavaScript for ODC screens, and shareable Claude Code skills — with room for more kinds
+of content over time.
 
 Documentation below is organized by the repository's folder structure — one section per top-level
 area. As new top-level folders are added, give each its own section here.
@@ -45,14 +45,6 @@ that drive *this* repo's own workflows live in `.claude/skills/` instead.
 | Skill | What it does |
 | --- | --- |
 | [`outsystems-mcp-code-review/`](skills/outsystems-mcp-code-review/SKILL.md) | Review gate for changes made to an OutSystems module through the Service Studio MCP. Lists every changed element (with its Service Studio path, details, and the acceptance criteria it covers) as an inline Yes/No form with a reason box for each "No". On submit it publishes when everything is Yes and there are no validation errors; otherwise it fixes the rejected items and shows the full list again with the fixed rows in yellow. Keeps a per-round log in `~/.claude/outsystems-reviews/`. |
-
-## Reference data
-
-Datasets kept as markdown tables, ready to load into ODC entities.
-
-| Dataset | What it is |
-| --- | --- |
-| [`countries.md`](countries.md) | The 249 ISO 3166-1 countries and territories for a `Country` entity — `Id`, `Name`, numeric `Code`, `Alpha2Code`, `Alpha3Code`, `CountryTypeId`, alphabetical `Order`, `Is_Active` — with the intracommunity (EU-27) / extracommunity `CountryType` GUIDs documented alongside. |
 
 ## Deploy
 

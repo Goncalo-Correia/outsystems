@@ -11,8 +11,6 @@ independent *category* of asset with its own build (or no build at all) and its 
   uploaded to ODC.
 - **Client-side JavaScript** (`javascript-libraries/`) — script bodies pasted into ODC client
   actions; no build step, no bundler, no npm.
-- **Reference data** (`countries.md` and future siblings) — markdown datasets meant to be loaded
-  into ODC entities.
 - **Claude Code skills** (`skills/`) — shareable skills for OutSystems work.
 
 Expect new categories over time. When adding one, give it a top-level folder, its own README/notes,
@@ -36,8 +34,6 @@ and a section in the root `README.md`.
   - `esri-map/` — `esri-map.js` (editable) and `esri-map-readonly.js` (display-only), the two
     client actions behind the `Esri_Maps` web blocks.
   - `input-scripts/` — `input-phonenumber.js`, an input-filtering client action.
-- `countries.md` — the 249 ISO 3166-1 countries as a markdown table ready to load into a `Country`
-  entity (includes the `CountryTypeId` GUIDs for the intracommunity/extracommunity split).
 - `skills/` — shareable Claude Code skills for OutSystems work, kept here for versioning (not
   loaded by this repo; install by copying a folder into `~/.claude/skills/`):
   - `outsystems-mcp-code-review/` — per-element Yes/No review gate for Service Studio MCP changes
