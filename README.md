@@ -45,6 +45,7 @@ that drive *this* repo's own workflows live in `.claude/skills/` instead.
 | Skill | What it does |
 | --- | --- |
 | [`outsystems-mcp-code-review/`](skills/outsystems-mcp-code-review/SKILL.md) | Review gate for changes made to an OutSystems module through the Service Studio MCP. Lists every changed element (with its Service Studio path, details, and the acceptance criteria it covers) as an inline Yes/No form with a reason box for each "No". On submit it publishes when everything is Yes and there are no validation errors; otherwise it fixes the rejected items and shows the full list again with the fixed rows in yellow. Keeps a per-round log in `~/.claude/outsystems-reviews/`. |
+| [`outsystems-mcp-repo-setup/`](skills/outsystems-mcp-repo-setup/SKILL.md) | Sets up (or upgrades) a git repository as the working home of an OutSystems 11 project developed through the Service Studio MCP. Scaffolds `CLAUDE.md`, README, architecture/conventions/decision docs, stories, a `changes/` log of every `applyModelApiCode` lambda, text `snapshots/` of each module, publish and review logs, `.mcp.json`, permissions and hooks, then takes a first snapshot of the open module(s). Safe to re-run: it never overwrites existing files. Needs Node 18+. |
 
 ## Deploy
 

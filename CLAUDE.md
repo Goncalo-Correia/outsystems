@@ -37,8 +37,14 @@ and a section in the root `README.md`.
 - `skills/` — shareable Claude Code skills for OutSystems work, kept here for versioning (not
   loaded by this repo; install by copying a folder into `~/.claude/skills/`):
   - `outsystems-mcp-code-review/` — per-element Yes/No review gate for Service Studio MCP changes
-    that publishes only after full approval and zero validation errors. The personal copy in
-    `~/.claude/skills/` is the one Claude actually loads; keep the two in sync when editing.
+    that publishes only after full approval and zero validation errors.
+  - `outsystems-mcp-repo-setup/` — scaffolds a *target* repo as the home of an O11 project built
+    through the Service Studio MCP (docs, stories, change log, module snapshots, hooks, `.mcp.json`).
+    `scripts/scaffold.mjs` (Node 18+) copies `templates/` into the target and never overwrites; the
+    files under `templates/` are payload for that other repo, not configuration for this one.
+
+  The personal copies in `~/.claude/skills/` are the ones Claude actually loads; keep each in sync
+  with its copy here when editing.
 - `.claude/skills/` — skills used to work on this repo: `deploy` (git-based release flow; see
   below), `odc-extension` and `odc-extension-zip`.
 
