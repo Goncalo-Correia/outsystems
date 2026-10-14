@@ -36,12 +36,22 @@ and a section in the root `README.md`.
   - `input-scripts/` — `input-phonenumber.js`, an input-filtering client action.
 - `skills/` — shareable Claude Code skills for OutSystems work, kept here for versioning (not
   loaded by this repo; install by copying a folder into `~/.claude/skills/`):
-  - `outsystems-mcp-code-review/` — per-element Yes/No review gate for Service Studio MCP changes
-    that publishes only after full approval and zero validation errors.
+  - `odc-extension/`, `odc-extension-zip/` — authoring and validate-then-package guides for ODC
+    external libraries. Shareable copies of the identically named skills in `.claude/skills/`;
+    keep the two copies identical.
+  - `outsystems-mcp-implementation/` — implements an O11 user story through the Service Studio MCP
+    (asks for description, plan and acceptance criteria, applies the plan, then a Yes/No plan-check
+    form). Never publishes.
+  - `outsystems-mcp-code-review/` — Yes/No review gate over acceptance criteria and every changed
+    element; publishes only after full approval and zero validation errors.
+  - `outsystems-mcp-publish/` — the only publish path: checks the module, calls `omlPublish`, and
+    its own `PostToolUse` hook (`scripts/log-publish.mjs`) writes `PUBLISHES.md` and `changes/`;
+    also refreshes `snapshots/<Module>/` (`scripts/extract-snapshot.mjs`).
   - `outsystems-mcp-repo-setup/` — scaffolds a *target* repo as the home of an O11 project built
-    through the Service Studio MCP (docs, stories, change log, module snapshots, hooks, `.mcp.json`).
-    `scripts/scaffold.mjs` (Node 18+) copies `templates/` into the target and never overwrites; the
-    files under `templates/` are payload for that other repo, not configuration for this one.
+    through the Service Studio MCP (docs, stories, change log, module snapshots, `.mcp.json`). It
+    installs no hooks — those belong to `outsystems-mcp-publish`. `scripts/scaffold.mjs` (Node 18+)
+    copies `templates/` into the target and never overwrites; the files under `templates/` are
+    payload for that other repo, not configuration for this one.
 
   The personal copies in `~/.claude/skills/` are the ones Claude actually loads; keep each in sync
   with its copy here when editing.

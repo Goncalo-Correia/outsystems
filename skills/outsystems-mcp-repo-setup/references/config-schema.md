@@ -17,7 +17,6 @@
   ],
   "references": ["OutSystemsUI", "Users"],       // platform/external modules the project depends on; default []
   "mcpUrl": "http://127.0.0.1:41820/mcp",        // default
-  "changeLog": "hook",                           // "hook" (default) | "manual"
   "vendorSkills": ["servicestudio-mcp-oml", "outsystems-mcp-code-review"], // copied from ~/.claude/skills; default []
   "skillsSource": "C:/Users/me/.claude/skills"   // optional override of where vendorSkills come from
 }
@@ -46,4 +45,4 @@ The script prints JSON on stdout: `{ "dryRun", "target", "results": [{ "path", "
 | `kept-differs` | File exists and differs from the template. It was not touched; offer a manual merge |
 | `merged` | A config file (`.gitignore`, `.gitattributes`, `.mcp.json`, `.claude/settings.json`) got missing entries added |
 | `unchanged` | A config file already had everything |
-| `skipped` | Not applicable (e.g. the change-log hook in manual mode, a vendored skill not found) |
+| `skipped` | Not applicable (e.g. a vendored skill not found) |

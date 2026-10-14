@@ -11,7 +11,7 @@
 
 This repository is the record around the platform:
 
-- every Model API lambda applied to a module is saved in `changes/`;
+- every Model API lambda applied to a module is saved in `changes/` when the module is published, by the `outsystems-mcp-publish` skill;
 - the state of each module after a publish is saved as Model API code in `snapshots/`;
 - stories, reviews, publishes and decisions are kept as Markdown.
 

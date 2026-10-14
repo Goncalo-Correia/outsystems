@@ -40,12 +40,17 @@ results go back out through `$parameters.<Name>` for a plain transform, or throu
 
 Shareable Claude Code skills for OutSystems work. These are copies kept in version control; to use
 one, copy its folder into `~/.claude/skills/` (personal) or a project's `.claude/skills/`. The skills
-that drive *this* repo's own workflows live in `.claude/skills/` instead.
+that drive *this* repo's own workflows live in `.claude/skills/` instead (the two `odc-extension*`
+skills live in both places and are kept identical).
 
 | Skill | What it does |
 | --- | --- |
-| [`outsystems-mcp-code-review/`](skills/outsystems-mcp-code-review/SKILL.md) | Review gate for changes made to an OutSystems module through the Service Studio MCP. Lists every changed element (with its Service Studio path, details, and the acceptance criteria it covers) as an inline Yes/No form with a reason box for each "No". On submit it publishes when everything is Yes and there are no validation errors; otherwise it fixes the rejected items and shows the full list again with the fixed rows in yellow. Keeps a per-round log in `~/.claude/outsystems-reviews/`. |
-| [`outsystems-mcp-repo-setup/`](skills/outsystems-mcp-repo-setup/SKILL.md) | Sets up (or upgrades) a git repository as the working home of an OutSystems 11 project developed through the Service Studio MCP. Scaffolds `CLAUDE.md`, README, architecture/conventions/decision docs, stories, a `changes/` log of every `applyModelApiCode` lambda, text `snapshots/` of each module, publish and review logs, `.mcp.json`, permissions and hooks, then takes a first snapshot of the open module(s). Safe to re-run: it never overwrites existing files. Needs Node 18+. |
+| [`odc-extension/`](skills/odc-extension/SKILL.md) | Guide to building an ODC external library: `.csproj` setup, the SDK attributes, .NET ↔ OutSystems type mapping, logging, packaging, and the ODC Portal upload/publish/release lifecycle. |
+| [`odc-extension-zip/`](skills/odc-extension-zip/SKILL.md) | Validates an ODC external library (clean Release build, tests, SDK-constraint review) and only then publishes and zips it into the upload `<Project>.zip`, verifying the ZIP is ODC-ready. |
+| [`outsystems-mcp-implementation/`](skills/outsystems-mcp-implementation/SKILL.md) | "Implement US X": asks for the story's description, implementation plan and acceptance criteria, writes the story file, applies the plan through the Service Studio MCP, then shows a Yes/No form checking each plan step against the live module. Never publishes. |
+| [`outsystems-mcp-code-review/`](skills/outsystems-mcp-code-review/SKILL.md) | Review gate for Service Studio MCP changes. Validates each acceptance criterion and lists every changed element in one inline Yes/No form with a reason box for each "No". Publishes only when everything is Yes and there are no validation errors; otherwise fixes the rejected items and shows the form again with the fixed rows in yellow. |
+| [`outsystems-mcp-publish/`](skills/outsystems-mcp-publish/SKILL.md) | Publishes a module (`omlPublish`) after checking it is merged, reviewed and error-free, and records it: a `PUBLISHES.md` row and every applied `applyModelApiCode` lambda under `changes/<date>/` (written by the skill's own hook), plus a refreshed `snapshots/<Module>/`. Also refreshes snapshots on its own. |
+| [`outsystems-mcp-repo-setup/`](skills/outsystems-mcp-repo-setup/SKILL.md) | Sets up (or upgrades) a git repository as the working home of an OutSystems 11 project developed through the Service Studio MCP. Scaffolds `CLAUDE.md`, README, architecture/conventions/decision docs, stories, `changes/`, `snapshots/`, publish and review logs, `.mcp.json` and permissions, then takes a first snapshot of the open module(s). Installs no hooks (those come from `outsystems-mcp-publish`). Safe to re-run: it never overwrites existing files. Needs Node 18+. |
 
 ## Deploy
 

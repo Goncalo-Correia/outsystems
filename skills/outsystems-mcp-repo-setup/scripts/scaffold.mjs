@@ -29,8 +29,6 @@ const READ_TOOLS = [
 
 const ASK_TOOLS = ['omlPublish', 'omlReset'].map(t => `mcp__servicestudio__${t}`);
 
-const hookCmd = file => `node "$CLAUDE_PROJECT_DIR/.claude/hooks/${file}"`;
-
 const GITIGNORE = [
   '# Claude Code local state',
   '.claude/state/',
@@ -73,7 +71,6 @@ cfg.environments ??= [{ name: 'Development', url: 'TODO' }];
 cfg.modules ??= [];
 cfg.references ??= [];
 cfg.mcpUrl ??= 'http://127.0.0.1:41820/mcp';
-cfg.changeLog ??= 'hook';
 cfg.vendorSkills ??= [];
 cfg.skillsSource ??= path.join(os.homedir(), '.claude', 'skills');
 
@@ -97,9 +94,6 @@ const vars = {
     cfg.modules.map(m => [m.name, m.app || 'TODO', m.type || 'TODO', m.layer || 'TODO', m.version || ''])),
   REFERENCES_LIST: cfg.references.length ? cfg.references.map(r => `- ${r}`).join('\n') : '_None recorded yet._',
   MODULE_NAMES: cfg.modules.length ? cfg.modules.map(m => `\`${m.name}\``).join(', ') : '_TODO_',
-  CHANGELOG_RULE: cfg.changeLog === 'hook'
-    ? 'A hook saves every successful `applyModelApiCode` call to `changes/<date>/` automatically. Don\'t write these files by hand.'
-    : 'After every successful `applyModelApiCode` call, save the lambda to `changes/<yyyy-mm-dd>/<HHmmss>-<Module>[-<story>].cs`, using the header format in `changes/README.md`.',
 };
 
 const render = text => text.replace(/\{\{([A-Z_]+)\}\}/g, (m, k) => (k in vars ? vars[k] : m));
@@ -112,10 +106,6 @@ function walk(dir, rel = '') {
     if (entry.isDirectory()) { walk(src, srcRel); continue; }
     const outRel = srcRel.replace(/\.tpl$/, '');
     const posixRel = outRel.split(path.sep).join('/');
-    if (cfg.changeLog !== 'hook' && posixRel === '.claude/hooks/log-model-change.mjs') {
-      report(posixRel, 'skipped', 'changeLog is manual');
-      continue;
-    }
     let content = fs.readFileSync(src, 'utf8');
     if (/\.md$/.test(outRel)) content = render(content);
     writeIfMissing(posixRel, content);
@@ -178,14 +168,6 @@ function mergeJson(rel, mutate) {
 
 const addUnique = (arr, items) => { for (const i of items) if (!arr.includes(i)) arr.push(i); };
 
-function addHook(settings, event, matcher, file) {
-  settings.hooks ??= {};
-  settings.hooks[event] ??= [];
-  const cmd = hookCmd(file);
-  const already = settings.hooks[event].some(g => (g.hooks || []).some(h => h.command === cmd));
-  if (!already) settings.hooks[event].push({ matcher, hooks: [{ type: 'command', command: cmd, timeout: 30 }] });
-}
-
 // ---------- vendored skills ----------
 function copyDir(src, dest) {
   fs.mkdirSync(dest, { recursive: true });
@@ -224,9 +206,6 @@ mergeJson('.claude/settings.json', s => {
   s.permissions.ask ??= [];
   addUnique(s.permissions.allow, READ_TOOLS);
   addUnique(s.permissions.ask, ASK_TOOLS);
-  if (cfg.changeLog === 'hook') addHook(s, 'PostToolUse', 'mcp__servicestudio__applyModelApiCode', 'log-model-change.mjs');
-  addHook(s, 'PostToolUse', 'mcp__servicestudio__omlPublish', 'log-publish.mjs');
-  addHook(s, 'PostToolUse', 'mcp__servicestudio__get.*', 'capture-snapshot.mjs');
 });
 
 vendorSkills();

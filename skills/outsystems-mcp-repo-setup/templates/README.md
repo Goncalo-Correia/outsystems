@@ -8,7 +8,8 @@ This is an {{PLATFORM}} project built with Claude Code through the Service Studi
 
 - Service Studio 11 with the MCP server enabled. The repo expects it at `{{MCP_URL}}`.
 - Claude Code.
-- Node.js 18 or later, for the hooks in `.claude/hooks/`.
+- Node.js 18 or later, for the publish hook of the `outsystems-mcp-publish` skill.
+- The user-level skills `servicestudio-mcp-oml`, `outsystems-mcp-code-review` and `outsystems-mcp-publish` in `~/.claude/skills/`. This repo ships no skills of its own.
 - The modules ({{MODULE_NAMES}}) open in Service Studio when you work on them.
 
 ## Getting started
