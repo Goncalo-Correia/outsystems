@@ -40,8 +40,9 @@ and a section in the root `README.md`.
     external libraries. Shareable copies of the identically named skills in `.claude/skills/`;
     keep the two copies identical.
   - `outsystems-mcp-implementation/` — implements an O11 user story through the Service Studio MCP
-    (asks for description, plan and acceptance criteria, applies the plan, then a Yes/No plan-check
-    form). Never publishes.
+    (asks for description, plan and acceptance criteria, applies the plan, then shows a Yes/No
+    plan-check form and calls `omlMerge` right after it, so the form is answered during the merge).
+    Never publishes.
   - `outsystems-mcp-code-review/` — Yes/No review gate over acceptance criteria and every changed
     element; publishes only after full approval and zero validation errors.
   - `outsystems-mcp-publish/` — the only publish path: checks the module, calls `omlPublish`, and

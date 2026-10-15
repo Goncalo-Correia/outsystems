@@ -1,6 +1,6 @@
 ---
 name: outsystems-mcp-implementation
-description: Implements an OutSystems 11 user story through the Service Studio MCP from a complete definition. Triggered by "implement US X" (or "implement US-012", "implement story X"), it first asks, one at a time, for the story's description, its implementation plan and its acceptance criteria, writes them to the story file, then implements the plan with applyModelApiCode / omlMerge. Afterwards it validates every implementation plan step against the live module, tags each Approved or Rejected with the reason, and shows the list as a Yes/No form in the conversation; the user's answer is final, and it fixes only what the user answers No to. It never publishes; acceptance criteria are reviewed afterwards with outsystems-mcp-code-review. Use whenever the user says "implement US X", "implement story X", "build US X", "start US X", or names outsystems-mcp-implementation.
+description: Implements an OutSystems 11 user story through the Service Studio MCP from a complete definition. Triggered by "implement US X" (or "implement US-012", "implement story X"), it first asks, one at a time, for the story's description, its implementation plan and its acceptance criteria, writes them to the story file, then implements the plan with applyModelApiCode. Before merging it validates every implementation plan step against the mutated module, tags each Approved or Rejected with the reason, shows the list as a Yes/No form in the conversation and then calls omlMerge right away, so the user reviews the plan check while reviewing the merge in Service Studio; the user's answer is final, and it fixes only what the user answers No to. It never publishes; acceptance criteria are reviewed afterwards with outsystems-mcp-code-review. Use whenever the user says "implement US X", "implement story X", "build US X", "start US X", or names outsystems-mcp-implementation.
 ---
 
 # OutSystems MCP implementation
@@ -15,13 +15,20 @@ This skill covers definition → implementation → plan check. It does **not** 
   -> 2. ask for the implementation plan  (wait for the answer)
   -> 3. ask for the acceptance criteria  (wait for the answer)
   -> 4. write the story file, set the current story
-  -> 5. implement the plan (applyModelApiCode), merge (omlMerge)
-  -> 6. validate each plan step against the live module: Approved / Rejected + reason
-  -> 7. show the plan check form in the conversation (Yes / No + reason per step, Submit)
-  -> 8. read the answers (the user's Yes / No is final)
+  -> 5. implement the plan (applyModelApiCode), no merge yet
+  -> 6. validate each plan step against the mutated module: Approved / Rejected + reason
+  -> 7. show the plan check form AND call omlMerge right after it, same turn
+        (the user answers the form while reviewing the Compare-and-Merge window)
+  -> 8. read the merge result, then the answers (the user's Yes / No is final)
         all Yes -> 9. close out, point to outsystems-mcp-code-review
-        any No  -> fix only those -> merge -> back to 6 (full list, fixed rows in yellow)
+        any No  -> fix only those -> back to 6 (full list, fixed rows in yellow, form + merge together)
 ```
+
+## The form and the merge run together
+
+The plan check form is shown **while the merge is happening**, never after it. The user validates the plan steps in the conversation at the same time as they review the diff in Service Studio's Compare-and-Merge window, so each check is made against the change they are about to accept.
+
+That's possible because, until `omlMerge` resolves, the read tools follow the session pointer and see the last successful mutation (see `servicestudio-mcp-oml`). So the order is always: validate against the mutated module → render the form → call `omlMerge` immediately, without waiting for the answers. `omlMerge` blocks until the user finishes the merge; the form stays answerable in the meantime.
 
 ## Forms live in the conversation
 
@@ -72,14 +79,14 @@ Follow the `servicestudio-mcp-oml` skill for the Model API contract (load it if 
 - Implement the plan **in its order**. Group steps into one `applyModelApiCode` call only when they touch the same element.
 - After each save, check `getValidationMessages` (errors) and fix errors before moving on.
 - If a step can't be done as written (the platform doesn't allow it, an element it relies on doesn't exist), choose the closest correct implementation, and record the deviation and its reason. Don't silently skip a step. If no reasonable alternative exists, stop and ask.
-- When the last mutation is clean, `omlMerge` its `mutatedOmlPath`. If `merged` is false, stop and tell the user what to resolve in Service Studio.
+- When the last mutation is clean, keep its `mutatedOmlPath`, but **don't merge yet**: the merge is called in step 7, right after the form is shown.
 - **Never call `omlPublish`.**
 
 Write what was actually done to the story's `## Implementation notes`: the number of saves, deviations from the plan and why, assumptions, and anything the reviewer should know.
 
-## 6. Validate the plan against the live module
+## 6. Validate the plan against the mutated module
 
-For every plan step, check the **live module** with the read tools (not the lambdas, not what you intended) and tag it:
+Before merging, for every plan step, check the **mutated module** with the read tools (they follow the session pointer, so they read what is about to be merged; not the lambdas, not what you intended) and tag it:
 
 - **Approved**: the module does what the step says.
 - **Rejected**: it doesn't, or only partly does. Always give the reason: what is missing or different, with element names, so the reviewer can check it in Service Studio in seconds.
@@ -93,9 +100,9 @@ Tagging rules:
 
 Before showing the form, check yourself: every plan step has exactly one row, and every Rejected tag has a reason.
 
-## 7. Show the plan check form
+## 7. Show the plan check form, then merge
 
-Send a short text intro: module, story, round number, number of steps, how many are Approved and Rejected, and the number of fixed rows.
+Send a short text intro: module, story, round number, number of steps, how many are Approved and Rejected, the number of fixed rows, and that the Compare-and-Merge window is opening now so they can check both side by side.
 
 Render the form **in the conversation** with `mcp__visualize__show_widget` (call `mcp__visualize__read_me` with modules `["elicitation"]` once beforehand if it hasn't been read in this conversation). Use the markup in `references/plan-check-form.md`. One row per plan step: the ID, the step text, Claude's tag badge, the reason or evidence, and Yes/No pills with a reason box on No. One Submit button.
 
@@ -106,9 +113,19 @@ Render the form **in the conversation** with `mcp__visualize__show_widget` (call
 
 If the widget tool isn't available, show that markdown table as the form and ask the user to reply with lines like `P03 No: <reason>` and "all others Yes". Don't use AskUserQuestion for this.
 
-## 8. Read the answers
+**Then, in the same turn, call `omlMerge`** with the kept `mutatedOmlPath`, with nothing in between: no question, no waiting for the answers. The call blocks while the user reviews the merge; the form stays open in the conversation during that time.
 
-The payload arrives as one line, for example `… — P01: Yes · P02: No · P02 (other): use a Message node · P03: Yes …`.
+- The form must be on screen **before** `omlMerge` is called. Never merge first and show the form afterwards, and never hold the merge until the form is answered.
+- When the merge is accepted with no dialog (the user's Service Studio setting), the call returns at once; that's fine, the form is still answered as usual.
+
+## 8. Read the merge result and the answers
+
+First, the merge result:
+
+- **`merged: true`**: re-read the elements of every plan step with the read tools (the pointer is now cleared, so they read the live module). If anything differs from what was validated (the user left a change out in the Compare-and-Merge window), say which steps are affected, re-tag them and show the form again (same round) before acting on any answer.
+- **`merged: false`**: nothing reached the module, so the form's answers don't count. Tell the user, follow the `merged: false` procedure in `servicestudio-mcp-oml`, and once the change is re-applied go back to step 6 (same round). Keep the `mutatedOmlPath`.
+
+Then the answers. The payload arrives as one line, for example `… — P01: Yes · P02: No · P02 (other): use a Message node · P03: Yes …`.
 
 - **The user's answer is final.** Claude's tag is advice:
   - **Rejected + Yes**: accepted as it is. Don't fix it and don't ask again. Record it as "accepted despite Rejected tag".
@@ -124,8 +141,10 @@ The payload arrives as one line, for example `… — P01: Yes · P02: No · P02
 
 1. Fix exactly what each No reason describes with `applyModelApiCode`, scoped to that step. If the fix has to touch elements of an approved step, that step also becomes `Fixed in round N` with a note explaining why.
 2. If the reason means the **plan text** should change rather than the module, ask before editing the story's plan, then re-tag the step against the new text.
-3. `omlMerge`, confirm with the read tools, update the implementation notes.
-4. Back to step 6 with round N+1: re-check and re-tag **every** step, show the full list, fixed rows in yellow.
+3. Update the implementation notes. **Don't merge yet.**
+4. Back to step 6 with round N+1: re-check and re-tag **every** step against the mutated module, show the full list with the fixed rows in yellow, and call `omlMerge` right after the form (step 7).
+
+A fix round starts a new chain off the live module (the previous merge cleared the pointer), so the round's merge carries only the fixes.
 
 If the same step is answered No 3 rounds in a row, stop and talk it through in chat instead of trying a fourth fix.
 
